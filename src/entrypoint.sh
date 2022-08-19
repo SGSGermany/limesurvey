@@ -82,6 +82,9 @@ if [ "$1" == "php-fpm" ]; then
         } > "/etc/limesurvey/config.session.inc.php"
     fi
 
+    # setup encryption, if necessary
+    /usr/lib/limesurvey/setup-encryption.sh
+
     # setup LimeSurvey, if necessary
     /usr/lib/limesurvey/setup.sh
 

@@ -64,6 +64,9 @@ git_ungit "$MOUNT/usr/src/limesurvey/limesurvey" "…/usr/src/limesurvey/limesur
 echo + "ln -s /etc/limesurvey/config.inc.php …/usr/src/limesurvey/limesurvey/application/config/config.php" >&2
 ln -s "/etc/limesurvey/config.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/application/config/config.php"
 
+echo + "ln -s /etc/limesurvey/security.inc.php …/usr/src/limesurvey/limesurvey/application/config/security.php" >&2
+ln -s "/etc/limesurvey/security.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/application/config/security.php"
+
 cmd buildah run "$CONTAINER" -- \
     /bin/sh -c "printf '%s=%s\n' \"\$@\" > /usr/src/limesurvey/version_info" -- \
         VERSION "$VERSION" \
