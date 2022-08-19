@@ -13,10 +13,6 @@
 set -eu -o pipefail
 export LC_ALL=C
 
-limesurvey() {
-    php -f "/var/www/html/application/commands/console.php" -- "$@"
-}
-
 read_secret() {
     local SECRET="/run/secrets/$1"
 

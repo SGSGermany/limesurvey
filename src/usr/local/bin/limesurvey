@@ -1,0 +1,17 @@
+#!/bin/sh
+# LimeSurvey
+# A php-fpm container running LimeSurvey.
+#
+# Copyright (c) 2022  SGS Serious Gaming & Simulations GmbH
+#
+# This work is licensed under the terms of the MIT license.
+# For a copy, see LICENSE file or <https://opensource.org/licenses/MIT>.
+#
+# SPDX-License-Identifier: MIT
+# License-Filename: LICENSE
+
+if [ "$(id -un)" != "www-data" ]; then
+    exec su -p -s /bin/sh www-data -c 'php -f "/var/www/html/application/commands/console.php" -- "$@"' -- '/bin/sh' "$@"
+else
+    exec php -f "/var/www/html/application/commands/console.php" -- "$@"
+fi

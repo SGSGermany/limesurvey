@@ -14,13 +14,27 @@ set -eu -o pipefail
 export LC_ALL=C
 
 if [ -e "/var/www/limesurvey_version_info" ]; then
-    exit
+    OLD_HASH="$(sed -ne 's/^HASH=\(.*\)$/\1/p' /var/www/limesurvey_version_info)"
+    NEW_HASH="$(sed -ne 's/^HASH=\(.*\)$/\1/p' /usr/src/limesurvey/version_info)"
+
+    if [ -n "$OLD_HASH" ] && [ "$OLD_HASH" == "$NEW_HASH" ]; then
+        exit
+    fi
+
+    OLD_VERSION="$(sed -ne 's/^VERSION=\(.*\)$/\1/p' /var/www/limesurvey_version_info)"
+else
+    OLD_VERSION=""
 fi
 
-VERSION="$(sed -ne 's/^VERSION=\(.*\)$/\1/p' /usr/src/limesurvey/version_info)"
+NEW_VERSION="$(sed -ne 's/^VERSION=\(.*\)$/\1/p' /usr/src/limesurvey/version_info)"
 
 # sync LimeSurvey files
-echo "Initializing LimeSurvey $VERSION..."
+if [ -z "$OLD_VERSION" ]; then
+    echo "Initializing LimeSurvey $NEW_VERSION..."
+else
+    echo "Upgrading LimeSurvey $OLD_VERSION to $NEW_VERSION..."
+fi
+
 rsync -rlptog --delete --chown www-data:www-data \
     "/usr/src/limesurvey/limesurvey/" \
     "/var/www/html/"
@@ -30,4 +44,8 @@ rsync -lptog --chown www-data:www-data \
     "/var/www/limesurvey_version_info"
 
 # run install script
-/usr/lib/limesurvey/setup/install.sh
+if [ -z "$OLD_VERSION" ]; then
+    /usr/lib/limesurvey/setup/install.sh
+else
+    /usr/lib/limesurvey/setup/upgrade.sh
+fi
