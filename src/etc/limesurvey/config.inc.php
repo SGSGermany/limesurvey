@@ -12,13 +12,6 @@
  * License-Filename: LICENSE
  */
 
-$env = [];
-foreach (getenv() as $name => $value) {
-    if ((substr_compare($name, 'LIMESURVEY_', 0, 11) === 0) && ($value !== '')) {
-        $env[substr($name, 11)] = $value;
-    }
-}
-
 $config = [];
 
 // load config.user.inc.php
@@ -32,10 +25,6 @@ $databaseConfig = [];
 if (file_exists('/etc/limesurvey/config.database.inc.php')) {
     require('/etc/limesurvey/config.database.inc.php');
 }
-
-$databaseConfig['database'] ??= $env['MYSQL_DATABASE'] ?? null;
-$databaseConfig['user'] ??= $env['MYSQL_USER'] ?? null;
-$databaseConfig['password'] ??= $env['MYSQL_PASSWORD'] ?? null;
 
 if (isset($config['components']['db']['connectionString'])) {
     if (isset($databaseConfig['database'])) {
@@ -77,25 +66,21 @@ $config['config']['emailmethod'] =
 
 $config['config']['emailsmtphost'] =
     $emailConfig['host']
-    ?? $env['EMAIL_HOST']
     ?? $config['config']['emailsmtphost']
     ?? '';
 
 $config['config']['emailsmtpssl'] =
     $emailConfig['ssl']
-    ?? $env['EMAIL_SSL']
     ?? $config['config']['emailsmtpssl']
     ?? '';
 
 $config['config']['emailsmtpuser'] =
     $emailConfig['user']
-    ?? $env['EMAIL_USER']
     ?? $config['config']['emailsmtpuser']
     ?? '';
 
 $config['config']['emailsmtppassword'] =
     $emailConfig['password']
-    ?? $env['EMAIL_PASSWORD']
     ?? $config['config']['emailsmtppassword']
     ?? '';
 
@@ -107,13 +92,11 @@ if ($config['config']['emailmethod'] === null) {
 
 $config['config']['siteadminname'] =
     $emailConfig['admin_name']
-    ?? $env['ADMIN_NAME']
     ?? $config['config']['siteadminname']
     ?? 'LimeSurvey Administrator';
 
 $config['config']['siteadminemail'] =
     $emailConfig['admin_email']
-    ?? $env['ADMIN_EMAIL']
     ?? $config['config']['siteadminemail']
     ?? 'admin@example.com';
 
@@ -127,9 +110,7 @@ if (file_exists('/etc/limesurvey/config.session.inc.php')) {
 }
 
 if (!isset($sessionConfig['name'])) {
-    if (isset($env['SESSION_NAME'])) {
-        $sessionConfig['name'] = $env['SESSION_NAME'];
-    } elseif (isset($config['components']['session']['sessionName'])) {
+    if (isset($config['components']['session']['sessionName'])) {
         $sessionConfig['name'] = $config['components']['session']['sessionName'];
     } else {
         $sessionConfig['name'] = 'LS-';
