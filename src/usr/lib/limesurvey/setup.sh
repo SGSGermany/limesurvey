@@ -33,6 +33,11 @@ if [ -z "$OLD_VERSION" ]; then
     echo "Initializing LimeSurvey $NEW_VERSION..."
 else
     echo "Upgrading LimeSurvey $OLD_VERSION to $NEW_VERSION..."
+
+    TMPDIR_UPLOAD="$(mktemp -d)"
+    rsync -rlptog \
+        "/var/www/html/upload/" \
+        "$TMPDIR_UPLOAD/"
 fi
 
 rsync -rlptog --delete --chown www-data:www-data \
@@ -47,5 +52,10 @@ rsync -lptog --chown www-data:www-data \
 if [ -z "$OLD_VERSION" ]; then
     /usr/lib/limesurvey/setup/install.sh
 else
+    rsync -rlptog \
+        "$TMPDIR_UPLOAD/" \
+        "/var/www/html/upload/"
+    rm -rf "$TMPDIR_UPLOAD"
+
     /usr/lib/limesurvey/setup/upgrade.sh
 fi
