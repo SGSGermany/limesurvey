@@ -31,6 +31,8 @@ LIMESURVEY_ENCRYPTION_KEY="$(read_secret "limesurvey_encryption_key")"
 
 if [ -z "$LIMESURVEY_ENCRYPTION_NONCE" ] || [ -z "$LIMESURVEY_ENCRYPTION_KEY" ]; then
     if ! mountpoint -q "/etc/limesurvey" && [ -z "${LIMESURVEY_ENCRYPTION_IGNORE:-}" ]; then
+        # we must fail here because LimeSurvey will silently create encryption keys otherwise,
+        # so that we might loose access to encrypted survey data as soon as the container is restarted
         echo "Failed to setup LimeSurvey encryption: Unable to persistently store encryption keys" >&2
         exit 1
     fi
