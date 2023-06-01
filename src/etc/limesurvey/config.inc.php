@@ -90,13 +90,20 @@ if ($config['config']['emailmethod'] === null) {
     $config['config']['emailmethod'] = ($config['config']['emailsmtphost'] !== '') ? 'smtp' : 'mail';
 }
 
+// site admin config
+$adminConfig = [];
+
+if (file_exists('/etc/limesurvey/config.admin.inc.php')) {
+    require('/etc/limesurvey/config.admin.inc.php');
+}
+
 $config['config']['siteadminname'] =
-    $emailConfig['admin_name']
+    $adminConfig['admin_name']
     ?? $config['config']['siteadminname']
     ?? 'LimeSurvey Administrator';
 
 $config['config']['siteadminemail'] =
-    $emailConfig['admin_email']
+    $adminConfig['admin_email']
     ?? $config['config']['siteadminemail']
     ?? 'admin@example.com';
 
