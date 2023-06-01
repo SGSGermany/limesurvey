@@ -98,12 +98,12 @@ if (file_exists('/etc/limesurvey/config.admin.inc.php')) {
 }
 
 $config['config']['siteadminname'] =
-    $adminConfig['admin_name']
+    $adminConfig['name']
     ?? $config['config']['siteadminname']
     ?? 'LimeSurvey Administrator';
 
 $config['config']['siteadminemail'] =
-    $adminConfig['admin_email']
+    $adminConfig['email']
     ?? $config['config']['siteadminemail']
     ?? 'admin@example.com';
 

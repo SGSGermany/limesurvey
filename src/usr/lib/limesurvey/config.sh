@@ -106,5 +106,6 @@ if [ ! -f "/etc/limesurvey/security.inc.php" ]; then
         printf '<?php\n';
         printf "\$config['encryptionnonce'] = '%s';\n" "$ENCRYPTION_NONCE";
         printf "\$config['encryptionsecretboxkey'] = '%s';\n" "$ENCRYPTION_KEY";
+        printf 'return $config;\n';
     } > "/etc/limesurvey/security.inc.php"
 fi
