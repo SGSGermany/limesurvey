@@ -11,7 +11,7 @@
 # License-Filename: LICENSE
 
 set -eu -o pipefail
-export LC_ALL=C
+export LC_ALL=C.UTF-8
 
 [ -v CI_TOOLS ] && [ "$CI_TOOLS" == "SGSGermany" ] \
     || { echo "Invalid build environment: Environment variable 'CI_TOOLS' not set or invalid" >&2; exit 1; }
@@ -51,7 +51,7 @@ php_install_ext "$CONTAINER" \
 
 user_add "$CONTAINER" mysql 65538
 
-VERSION="$(git_latest "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION")"
+VERSION="$(git_latest "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION_PATTERN")"
 
 git_clone "$LIMESURVEY_GIT_REPO" "refs/tags/$VERSION" \
     "$MOUNT/usr/src/limesurvey/limesurvey" "…/usr/src/limesurvey/limesurvey"
@@ -75,12 +75,12 @@ cmd buildah run "$CONTAINER" -- \
 cleanup "$CONTAINER"
 
 cmd buildah config \
-    --volume "/var/www" \
-    --volume "/run/mysql" \
+    --entrypoint '[ "/entrypoint.sh" ]' \
     "$CONTAINER"
 
 cmd buildah config \
-    --entrypoint '[ "/entrypoint.sh" ]' \
+    --volume "/var/www" \
+    --volume "/run/mysql" \
     "$CONTAINER"
 
 cmd buildah config \

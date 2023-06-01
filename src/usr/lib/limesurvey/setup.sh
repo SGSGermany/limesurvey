@@ -11,7 +11,7 @@
 # License-Filename: LICENSE
 
 set -eu -o pipefail
-export LC_ALL=C
+export LC_ALL=C.UTF-8
 
 if [ -e "/var/www/limesurvey_version_info" ]; then
     OLD_HASH="$(sed -ne 's/^HASH=\(.*\)$/\1/p' /var/www/limesurvey_version_info)"

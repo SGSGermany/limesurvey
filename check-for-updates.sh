@@ -11,7 +11,7 @@
 # License-Filename: LICENSE
 
 set -eu -o pipefail
-export LC_ALL=C
+export LC_ALL=C.UTF-8
 
 [ -v CI_TOOLS ] && [ "$CI_TOOLS" == "SGSGermany" ] \
     || { echo "Invalid build environment: Environment variable 'CI_TOOLS' not set or invalid" >&2; exit 1; }
@@ -33,6 +33,6 @@ chkupd_baseimage "$REGISTRY/$OWNER/$IMAGE" "$TAG" || exit 0
 
 # check whether a new Git tag is available
 chkupd_git "$REGISTRY/$OWNER/$IMAGE:$TAG" \
-    "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION" \
+    "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION_PATTERN" \
     "/usr/src/limesurvey/version_info" \
     || exit 0

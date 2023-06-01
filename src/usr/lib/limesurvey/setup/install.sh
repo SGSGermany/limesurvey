@@ -11,7 +11,7 @@
 # License-Filename: LICENSE
 
 set -eu -o pipefail
-export LC_ALL=C
+export LC_ALL=C.UTF-8
 
 read_secret() {
     local SECRET="/run/secrets/$1"

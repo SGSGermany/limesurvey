@@ -11,7 +11,7 @@
 # License-Filename: LICENSE
 
 set -eu -o pipefail
-export LC_ALL=C
+export LC_ALL=C.UTF-8
 
 [ -v CI_TOOLS ] && [ "$CI_TOOLS" == "SGSGermany" ] \
     || { echo "Invalid build environment: Environment variable 'CI_TOOLS' not set or invalid" >&2; exit 1; }
@@ -30,8 +30,8 @@ if [ $# -gt 0 ] && [[ "$1" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
     BUILD_INFO=".${1,,}"
 fi
 
-# get version of package
-VERSION="$(git_latest "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION")"
+# get latest LimeSurvey version
+VERSION="$(git_latest "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION_PATTERN")"
 
 if [ -z "$VERSION" ]; then
     echo "Unable to read LimeSurvey version from Git repository" >&2
