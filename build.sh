@@ -75,6 +75,11 @@ cmd buildah run "$CONTAINER" -- \
 cleanup "$CONTAINER"
 
 cmd buildah config \
+    --env LIMESURVEY_VERSION="$VERSION" \
+    --env LIMESURVEY_HASH="$HASH" \
+    "$CONTAINER"
+
+cmd buildah config \
     --entrypoint '[ "/entrypoint.sh" ]' \
     "$CONTAINER"
 
