@@ -33,6 +33,6 @@ chkupd_baseimage "$REGISTRY/$OWNER/$IMAGE" "$TAG" || exit 0
 
 # check whether a new Git tag is available
 chkupd_git "$REGISTRY/$OWNER/$IMAGE:$TAG" \
-    "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION_PATTERN" \
+    "$GIT_REPO" "$VERSION_PATTERN" \
     "/usr/src/limesurvey/version_info" \
     || exit 0

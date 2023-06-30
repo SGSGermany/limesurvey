@@ -31,7 +31,7 @@ if [ $# -gt 0 ] && [[ "$1" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
 fi
 
 # get latest LimeSurvey version
-VERSION="$(git_latest "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION_PATTERN")"
+VERSION="$(git_latest "$GIT_REPO" "$VERSION_PATTERN")"
 
 if [ -z "$VERSION" ]; then
     echo "Unable to read LimeSurvey version from Git repository" >&2

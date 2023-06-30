@@ -51,9 +51,9 @@ php_install_ext "$CONTAINER" \
 
 user_add "$CONTAINER" mysql 65538
 
-VERSION="$(git_latest "$LIMESURVEY_GIT_REPO" "$LIMESURVEY_VERSION_PATTERN")"
+VERSION="$(git_latest "$GIT_REPO" "$VERSION_PATTERN")"
 
-git_clone "$LIMESURVEY_GIT_REPO" "refs/tags/$VERSION" \
+git_clone "$GIT_REPO" "refs/tags/$VERSION" \
     "$MOUNT/usr/src/limesurvey/limesurvey" "…/usr/src/limesurvey/limesurvey"
 
 echo + "HASH=\"\$(git -C …/usr/src/limesurvey/limesurvey rev-parse HEAD)\"" >&2
