@@ -36,6 +36,11 @@ CONTAINER="$(buildah from "$BASE_IMAGE")"
 echo + "MOUNT=\"\$(buildah mount $(quote "$CONTAINER"))\"" >&2
 MOUNT="$(buildah mount "$CONTAINER")"
 
+PHP_FPM_OPEN_BASEDIR_CONF=( "/var/www/" "/etc/limesurvey/" "/usr/local/lib/php/" "/tmp/php/" "/dev/urandom" )
+cmd php_patch_config_list -a "$CONTAINER" "/etc/php-fpm/pool.d/www.conf" \
+    "php(_admin)?_(flag|value)" \
+    "php_admin_value[open_basedir]" "$(IFS=:; echo "${PHP_FPM_OPEN_BASEDIR_CONF[*]}")"
+
 echo + "rsync -v -rl --exclude .gitignore ./src/ …/" >&2
 rsync -v -rl --exclude '.gitignore' "$BUILD_DIR/src/" "$MOUNT/"
 
