@@ -19,16 +19,25 @@ export LC_ALL=C.UTF-8
 [ -v CI_TOOLS_PATH ] && [ -d "$CI_TOOLS_PATH" ] \
     || { echo "Invalid build environment: Environment variable 'CI_TOOLS_PATH' not set or invalid" >&2; exit 1; }
 
+[ -x "$(type -P curl 2>/dev/null)" ] \
+    || { echo "Missing script dependency: curl" >&2; exit 1; }
+
+[ -x "$(type -P unzip 2>/dev/null)" ] \
+    || { echo "Missing script dependency: unzip" >&2; exit 1; }
+
 source "$CI_TOOLS_PATH/helper/common.sh.inc"
 source "$CI_TOOLS_PATH/helper/container.sh.inc"
 source "$CI_TOOLS_PATH/helper/container-alpine.sh.inc"
-source "$CI_TOOLS_PATH/helper/git.sh.inc"
 source "$CI_TOOLS_PATH/helper/php.sh.inc"
 
 BUILD_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 source "$BUILD_DIR/container.env"
 
 readarray -t -d' ' TAGS < <(printf '%s' "$TAGS")
+
+if [ -z "${VERSION:-}" ]; then
+    VERSION="$("$BUILD_DIR/latest-version.sh")"
+fi
 
 echo + "CONTAINER=\"\$(buildah from $(quote "$BASE_IMAGE"))\"" >&2
 CONTAINER="$(buildah from "$BASE_IMAGE")"
@@ -56,15 +65,11 @@ php_install_ext "$CONTAINER" \
 
 user_add "$CONTAINER" mysql 65538
 
-VERSION="$(git_latest "$GIT_REPO" "$VERSION_PATTERN")"
+echo + "curl -L -o …/usr/src/limesurvey/limesurvey.zip $(quote "$(printf "$ARCHIVE_URL_TEMPLATE" "$VERSION")")" >&2
+curl -L -o "$MOUNT/usr/src/limesurvey/limesurvey.zip" "$(printf "$ARCHIVE_URL_TEMPLATE" "$VERSION")"
 
-git_clone "$GIT_REPO" "refs/tags/$VERSION" \
-    "$MOUNT/usr/src/limesurvey/limesurvey" "…/usr/src/limesurvey/limesurvey"
-
-echo + "HASH=\"\$(git -C …/usr/src/limesurvey/limesurvey rev-parse HEAD)\"" >&2
-HASH="$(git -C "$MOUNT/usr/src/limesurvey/limesurvey" rev-parse HEAD)"
-
-git_ungit "$MOUNT/usr/src/limesurvey/limesurvey" "…/usr/src/limesurvey/limesurvey"
+echo + "unzip -d …/usr/src/limesurvey/ …/usr/src/limesurvey/limesurvey.zip" >&2
+unzip -d "$MOUNT/usr/src/limesurvey/" "$MOUNT/usr/src/limesurvey/limesurvey.zip"
 
 echo + "ln -s /etc/limesurvey/config.inc.php …/usr/src/limesurvey/limesurvey/application/config/config.php" >&2
 ln -s "/etc/limesurvey/config.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/application/config/config.php"
@@ -72,10 +77,12 @@ ln -s "/etc/limesurvey/config.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/app
 echo + "ln -s /etc/limesurvey/security.inc.php …/usr/src/limesurvey/limesurvey/application/config/security.php" >&2
 ln -s "/etc/limesurvey/security.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/application/config/security.php"
 
+echo + "rm …/usr/src/limesurvey/limesurvey.zip" >&2
+rm "$MOUNT/usr/src/limesurvey/limesurvey.zip"
+
 cmd buildah run "$CONTAINER" -- \
     /bin/sh -c "printf '%s=%s\n' \"\$@\" > /usr/src/limesurvey/version_info" -- \
-        VERSION "$VERSION" \
-        HASH "$HASH"
+        VERSION "$VERSION"
 
 cleanup "$CONTAINER"
 
@@ -83,7 +90,6 @@ con_cleanup "$CONTAINER"
 
 cmd buildah config \
     --env LIMESURVEY_VERSION="$VERSION" \
-    --env LIMESURVEY_HASH="$HASH" \
     "$CONTAINER"
 
 cmd buildah config \

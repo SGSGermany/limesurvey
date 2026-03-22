@@ -21,7 +21,6 @@ export LC_ALL=C.UTF-8
 
 source "$CI_TOOLS_PATH/helper/common.sh.inc"
 source "$CI_TOOLS_PATH/helper/chkupd.sh.inc"
-source "$CI_TOOLS_PATH/helper/chkupd-git.sh.inc"
 
 BUILD_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 source "$BUILD_DIR/container.env"
@@ -31,8 +30,9 @@ TAG="${TAGS%% *}"
 # check whether the base image was updated
 chkupd_baseimage "$REGISTRY/$OWNER/$IMAGE" "$TAG" || exit 0
 
-# check whether a new Git tag is available
-chkupd_git "$REGISTRY/$OWNER/$IMAGE:$TAG" \
-    "$GIT_REPO" "$VERSION_PATTERN" \
-    "/usr/src/limesurvey/version_info" \
-    || exit 0
+# check whether the image is using the latest LimeSurvey version
+if [ -z "${VERSION:-}" ]; then
+    VERSION="$("$BUILD_DIR/latest-version.sh")"
+fi
+
+chkupd_image_version "$REGISTRY/$OWNER/$IMAGE:$TAG" "$VERSION" || exit 0

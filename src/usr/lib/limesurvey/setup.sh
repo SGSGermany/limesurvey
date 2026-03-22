@@ -13,17 +13,9 @@
 set -eu -o pipefail
 export LC_ALL=C.UTF-8
 
+OLD_VERSION=""
 if [ -e "/var/www/limesurvey_version_info" ]; then
-    OLD_HASH="$(sed -ne 's/^HASH=\(.*\)$/\1/p' /var/www/limesurvey_version_info)"
-    NEW_HASH="$(sed -ne 's/^HASH=\(.*\)$/\1/p' /usr/src/limesurvey/version_info)"
-
-    if [ -n "$OLD_HASH" ] && [ "$OLD_HASH" == "$NEW_HASH" ]; then
-        exit
-    fi
-
     OLD_VERSION="$(sed -ne 's/^VERSION=\(.*\)$/\1/p' /var/www/limesurvey_version_info)"
-else
-    OLD_VERSION=""
 fi
 
 NEW_VERSION="$(sed -ne 's/^VERSION=\(.*\)$/\1/p' /usr/src/limesurvey/version_info)"

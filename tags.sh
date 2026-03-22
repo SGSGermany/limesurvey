@@ -20,7 +20,6 @@ export LC_ALL=C.UTF-8
     || { echo "Invalid build environment: Environment variable 'CI_TOOLS_PATH' not set or invalid" >&2; exit 1; }
 
 source "$CI_TOOLS_PATH/helper/common.sh.inc"
-source "$CI_TOOLS_PATH/helper/git.sh.inc"
 
 BUILD_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 source "$BUILD_DIR/container.env"
@@ -31,13 +30,13 @@ if [ $# -gt 0 ] && [[ "$1" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
 fi
 
 # get latest LimeSurvey version
-VERSION="$(git_latest "$GIT_REPO" "$VERSION_PATTERN")"
+VERSION="$("$BUILD_DIR/latest-version.sh")"
 
 if [ -z "$VERSION" ]; then
-    echo "Unable to read LimeSurvey version from Git repository" >&2
+    echo "Unable to read LimeSurvey version from downloads webpage" >&2
     exit 1
 elif ! [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)([+~-]|$) ]]; then
-    echo "Unable to read LimeSurvey version from Git repository: '$VERSION' is no valid version" >&2
+    echo "Unable to read LimeSurvey version from downloads webpage: '$VERSION' is no valid version" >&2
     exit 1
 fi
 
@@ -45,6 +44,11 @@ VERSION_FULL="$VERSION"
 VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
 VERSION_MINOR="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
 VERSION_MAJOR="${BASH_REMATCH[1]}"
+
+if [[ "$VERSION" != $VERSION_PATTERN ]]; then
+    echo "Unexpected LimeSurvey version: '$VERSION' does not match pattern '$VERSION_PATTERN'" >&2
+    exit 1
+fi
 
 # build tags
 BUILD_INFO="$(date --utc +'%Y%m%d')$BUILD_INFO"
