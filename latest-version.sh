@@ -55,7 +55,7 @@ echo + "curl -sSL $(quote "$DOWNLOADS_WEBPAGE_URL")" >&2
 DOWNLOADS_WEBPAGE="$(_curl "$DOWNLOADS_WEBPAGE_URL" | sed -e '1,/^$/d')"
 [ -n "$DOWNLOADS_WEBPAGE" ] || { echo "Failed to request LimeSurvey downloads webpage: $DOWNLOADS_WEBPAGE_URL" >&2; exit 1; }
 
-ARCHIVE_URL="$(_xpath_url "${ARCHIVE_URL_TEMPLATE%/*}" <<< "$DOWNLOADS_WEBPAGE")"
+ARCHIVE_URL="$(_xpath_url "$(sed -e 's#/[^/]*%s.*$##' <<< "$ARCHIVE_URL_TEMPLATE")" <<< "$DOWNLOADS_WEBPAGE")"
 [ -n "$ARCHIVE_URL" ] || { echo "Malformed LimeSurvey downloads webpage: $DOWNLOADS_WEBPAGE_URL" >&2; exit 1; }
 
 ARCHIVE_URL_REGEX="$(printf "$(sed -e 's/[]\/$*.^[]/\\&/g' <<< "$ARCHIVE_URL_TEMPLATE")" "$VERSION_REGEX")"
