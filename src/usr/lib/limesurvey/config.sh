@@ -26,6 +26,10 @@ php_escape() {
     php -r 'var_export($argv[1]); echo "\n";' "$*"
 }
 
+php_escape_array() {
+    php -r 'var_export(array_slice($argv, 1)); echo "\n";' "$@"
+}
+
 # database config
 if [ ! -f "/etc/limesurvey/config.database.inc.php" ]; then
     MYSQL_DATABASE="$(read_secret "limesurvey_mysql_database")"
@@ -112,4 +116,19 @@ if [ ! -f "/etc/limesurvey/security.inc.php" ]; then
         printf "\$config['encryptionsecretboxkey'] = %s;\n" "$(php_escape "$ENCRYPTION_KEY")";
         printf 'return $config;\n';
     } > "/etc/limesurvey/security.inc.php"
+fi
+
+# allowed hosts
+if [ ! -f "/etc/limesurvey/allowed_hosts.inc.php" ]; then
+    ALLOWED_HOSTS="$(read_secret "limesurvey_allowed_hosts")"
+
+    if [ -z "$ALLOWED_HOSTS" ]; then
+        ALLOWED_HOSTS="$(hostname)"
+    fi
+
+    {
+        printf '<?php\n';
+        printf '$hosts = %s;\n' "$(php_escape_array $ALLOWED_HOSTS)"
+        printf "return [ 'allowedHosts' => \$hosts ];\n";
+    } > "/etc/limesurvey/allowed_hosts.inc.php"
 fi

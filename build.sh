@@ -74,6 +74,9 @@ ln -s "/etc/limesurvey/config.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/app
 echo + "ln -s /etc/limesurvey/security.inc.php …/usr/src/limesurvey/limesurvey/application/config/security.php" >&2
 ln -s "/etc/limesurvey/security.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/application/config/security.php"
 
+echo + "ln -s /etc/limesurvey/allowed_hosts.inc.php …/usr/src/limesurvey/limesurvey/application/config/allowed_hosts.php" >&2
+ln -s "/etc/limesurvey/allowed_hosts.inc.php" "$MOUNT/usr/src/limesurvey/limesurvey/application/config/allowed_hosts.php"
+
 echo + "rm …/usr/src/limesurvey/limesurvey.zip" >&2
 rm "$MOUNT/usr/src/limesurvey/limesurvey.zip"
 
