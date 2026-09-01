@@ -156,6 +156,8 @@ if (!isset($config['components']['urlManager'])) {
 
 // misc settings
 $config['config']['updatable'] ??= false;
+$config['config']['updatecheckperiod'] ??= 0;
+$config['config']['minimum_update_stability'] ??= 'stable';
 $config['config']['debug'] ??= 0;
 $config['config']['debugsql'] ??= 0;
 $config['config']['force_ssl'] ??= 'on';
