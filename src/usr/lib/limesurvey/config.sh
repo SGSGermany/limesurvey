@@ -22,6 +22,10 @@ read_secret() {
     cat "$SECRET" || return 1
 }
 
+php_escape() {
+    php -r 'var_export($argv[1]); echo "\n";' "$*"
+}
+
 # database config
 if [ ! -f "/etc/limesurvey/config.database.inc.php" ]; then
     MYSQL_DATABASE="$(read_secret "limesurvey_mysql_database")"
@@ -31,9 +35,9 @@ if [ ! -f "/etc/limesurvey/config.database.inc.php" ]; then
     if [ -n "$MYSQL_DATABASE" ] || [ -n "$MYSQL_USER" ] || [ -n "$MYSQL_PASSWORD" ]; then
         {
             printf '<?php\n';
-            [ -z "$MYSQL_DATABASE" ] || printf "\$databaseConfig['database'] = '%s';\n" "$MYSQL_DATABASE";
-            [ -z "$MYSQL_USER" ]     || printf "\$databaseConfig['user'] = '%s';\n" "$MYSQL_USER";
-            [ -z "$MYSQL_PASSWORD" ] || printf "\$databaseConfig['password'] = '%s';\n" "$MYSQL_PASSWORD";
+            [ -z "$MYSQL_DATABASE" ] || printf "\$databaseConfig['database'] = %s;\n" "$(php_escape "$MYSQL_DATABASE")";
+            [ -z "$MYSQL_USER" ]     || printf "\$databaseConfig['user'] = %s;\n" "$(php_escape "$MYSQL_USER")";
+            [ -z "$MYSQL_PASSWORD" ] || printf "\$databaseConfig['password'] = %s;\n" "$(php_escape "$MYSQL_PASSWORD")";
         } > "/etc/limesurvey/config.database.inc.php"
     fi
 fi
@@ -48,11 +52,11 @@ if [ ! -f "/etc/limesurvey/config.email.inc.php" ]; then
     if [ -n "$EMAIL_HOST" ]; then
         {
             printf '<?php\n';
-            printf "\$emailConfig['method'] = '%s';\n" "smtp";
-            printf "\$emailConfig['host'] = '%s';\n" "$EMAIL_HOST";
-            [ -z "$EMAIL_SSL" ]      || printf "\$emailConfig['ssl'] = '%s';\n" "$EMAIL_SSL";
-            [ -z "$EMAIL_USER" ]     || printf "\$emailConfig['user'] = '%s';\n" "$EMAIL_USER";
-            [ -z "$EMAIL_PASSWORD" ] || printf "\$emailConfig['password'] = '%s';\n" "$EMAIL_PASSWORD";
+            printf "\$emailConfig['method'] = %s;\n" "$(php_escape "smtp")";
+            printf "\$emailConfig['host'] = %s;\n" "$(php_escape "$EMAIL_HOST")";
+            [ -z "$EMAIL_SSL" ]      || printf "\$emailConfig['ssl'] = %s;\n" "$(php_escape "$EMAIL_SSL")";
+            [ -z "$EMAIL_USER" ]     || printf "\$emailConfig['user'] = %s;\n" "$(php_escape "$EMAIL_USER")";
+            [ -z "$EMAIL_PASSWORD" ] || printf "\$emailConfig['password'] = %s;\n" "$(php_escape "$EMAIL_PASSWORD")";
         } > "/etc/limesurvey/config.email.inc.php"
     fi
 fi
@@ -65,8 +69,8 @@ if [ ! -f "/etc/limesurvey/config.admin.inc.php" ]; then
     if [ -n "$ADMIN_NAME" ] || [ -n "$ADMIN_EMAIL" ]; then
         {
             printf '<?php\n';
-            [ -z "$ADMIN_NAME" ]     || printf "\$adminConfig['name'] = '%s';\n" "$ADMIN_NAME";
-            [ -z "$ADMIN_EMAIL" ]    || printf "\$adminConfig['email'] = '%s';\n" "$ADMIN_EMAIL";
+            [ -z "$ADMIN_NAME" ]     || printf "\$adminConfig['name'] = %s;\n" "$(php_escape "$ADMIN_NAME")";
+            [ -z "$ADMIN_EMAIL" ]    || printf "\$adminConfig['email'] = %s;\n" "$(php_escape "$ADMIN_EMAIL")";
         } > "/etc/limesurvey/config.admin.inc.php"
     fi
 fi
@@ -81,7 +85,7 @@ if [ ! -f "/etc/limesurvey/config.session.inc.php" ]; then
 
     {
         printf '<?php\n';
-        printf "\$sessionConfig['name'] = '%s';\n" "$SESSION_NAME";
+        printf "\$sessionConfig['name'] = %s;\n" "$(php_escape "$SESSION_NAME")";
     } > "/etc/limesurvey/config.session.inc.php"
 fi
 
@@ -104,8 +108,8 @@ if [ ! -f "/etc/limesurvey/security.inc.php" ]; then
 
     {
         printf '<?php\n';
-        printf "\$config['encryptionnonce'] = '%s';\n" "$ENCRYPTION_NONCE";
-        printf "\$config['encryptionsecretboxkey'] = '%s';\n" "$ENCRYPTION_KEY";
+        printf "\$config['encryptionnonce'] = %s;\n" "$(php_escape "$ENCRYPTION_NONCE")";
+        printf "\$config['encryptionsecretboxkey'] = %s;\n" "$(php_escape "$ENCRYPTION_KEY")";
         printf 'return $config;\n';
     } > "/etc/limesurvey/security.inc.php"
 fi
